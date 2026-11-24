@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        'dependency-check': 'Dependency-Check-12'
-    }
-
     stages {
         stage('Build') {
             steps {
@@ -21,7 +17,7 @@ pipeline {
 
         stage('Analyze (SonarQube)') {
             steps {
-                echo 'Ejecutando análisis estático con SonarQube...'
+                echo 'Ejecutando analisis estatico con SonarQube...'
                 withSonarQubeEnv('SonarQube') {
                     sh 'sonar-scanner -Dsonar.projectKey=HelloWorld -Dsonar.sources=.'
                 }
@@ -30,7 +26,7 @@ pipeline {
 
         stage('Security Test (Dependency-Check)') {
             steps {
-                echo 'Ejecutando análisis de dependencias...'
+                echo 'Ejecutando analisis de dependencias...'
                 dependencyCheck odcInstallation: 'Dependency-Check-12'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
@@ -38,7 +34,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Desplegando aplicación en entorno de prueba...'
+                echo 'Desplegando aplicacion en entorno de prueba...'
             }
         }
     }
