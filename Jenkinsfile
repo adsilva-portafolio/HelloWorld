@@ -18,8 +18,11 @@ pipeline {
         stage('Analyze (SonarQube)') {
             steps {
                 echo 'Ejecutando analisis estatico con SonarQube...'
-                withSonarQubeEnv('SonarQube') {
-                    sh 'sonar-scanner -Dsonar.projectKey=HelloWorld -Dsonar.sources=.'
+                script {
+                    def scannerHome = tool 'SonarQubeScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=HelloWorld -Dsonar.sources=."
+                    }
                 }
             }
         }
