@@ -1,10 +1,12 @@
+
 pipeline {
     agent any
 
     stages {
         stage('Build') {
             steps {
-                echo 'Compilando y preparando el entorno...'
+                echo 'Compilando el codigo fuente y preparando dependencias...'
+                sh 'python3 -m py_compile app.py'
             }
         }
 
@@ -12,6 +14,13 @@ pipeline {
             steps {
                 echo 'Ejecutando pruebas unitarias...'
                 sh 'python3 test_app.py'
+            }
+        }
+
+        stage('Generate Documentation') {
+            steps {
+                echo 'Generando documentacion automatizada con Doxygen...'
+                sh 'doxygen Doxyfile'
             }
         }
 
@@ -29,17 +38,37 @@ pipeline {
 
         stage('Security Test (Dependency-Check)') {
             steps {
-                echo 'Ejecutando analisis de dependencias (OWASP Dependency-Check v12.x.x)...'
-                // Se usa --noupdate para evitar la descarga masiva de la API NVD que congela la maquina virtual
+                echo 'Ejecutando analisis de dependencias...'
                 dependencyCheck odcInstallation: 'Dependency-Check-12', additionalArguments: '--noupdate --format XML --format HTML'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
 
+        stage('Version Control') {
+            steps {
+                echo 'Verificando trazabilidad y estado del repositorio Git...'
+                sh 'git status'
+                sh 'git log -n 3 --oneline'
+            }
+        }
+
         stage('Deploy') {
             steps {
-                echo 'Desplegando aplicacion en entorno de prueba...'
+                echo 'Desplegando aplicacion en entorno de pruebas...'
+                sh 'echo "Despliegue simulado exitoso en http://localhost:5000"'
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Finalizacion del pipeline de documentacion y trazabilidad.'
+        }
+        success {
+            echo 'Pipeline completado con exito.'
+        }
+        failure {
+            echo 'El pipeline ha fallado. Revise los registros de consola en Jenkins.'
         }
     }
 }
